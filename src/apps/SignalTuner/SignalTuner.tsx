@@ -5,7 +5,8 @@ import { Howl } from 'howler';
 import { useChaosStore } from '../../state/chaosStore';
 
 // Assuming we have sound assets or using a reliable CDN for demo
-const LOFI_URL = 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3'; // Placeholder
+// Reliable MP3 source (Lofi hip hop)
+const LOFI_URL = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3'; // Free placeholder from Pixabay
 const WHITE_NOISE_URL = 'https://assets.mixkit.co/sfx/preview/mixkit-radio-static-noise-1282.mp3';
 
 export const SignalTuner: React.FC = () => {
@@ -20,7 +21,7 @@ export const SignalTuner: React.FC = () => {
     useEffect(() => {
         radioRef.current = new Howl({
             src: [LOFI_URL],
-            html5: true,
+            html5: false, // Must be false for rate/pitch shift
             loop: true,
             volume: 0.5
         });
@@ -41,17 +42,30 @@ export const SignalTuner: React.FC = () => {
     useEffect(() => {
         if (!isPlaying) return;
 
-        // Higher chaos = More static, Less music volume
+        // Higher chaos = LOUDER Signal, Slower Pitch (Heavy/Distorting/Haunted effect)
         const chaosFactor = chaosLevel / 100;
-        const musicVol = Math.max(0, volume - (chaosFactor * 0.8)); // Music dips at high chaos
-        const noiseVol = Math.min(0.5, chaosFactor * 0.5); // Static rises
+
+        // Volume: BOOST IT. 
+        // We take the user's set volume and add gain based on chaos.
+        // Even if volume is low, chaos forces it up.
+        // At 100% Chaos, volume is boosted significantly (capped at 1.0).
+        const musicVol = Math.min(1.0, volume + (chaosFactor * 0.5));
+        const noiseVol = Math.min(0.6, chaosFactor * 0.6); // Static gets quite loud (60%)
 
         radioRef.current?.volume(musicVol);
         noiseRef.current?.volume(noiseVol);
 
-        // Detune frequency slightly
-        if (chaosLevel > 50) {
-            setFrequency(prev => 88.5 + (Math.random() - 0.5));
+        // Pitch Shift / Detune: Drop rate aggressively for "Humming" drone
+        // At 100% Chaos -> Rate = 0.4 (Very deep, slow drone)
+        const targetRate = 1.0 - (chaosFactor * 0.6);
+
+        // Add violent flutter for instability
+        const flutter = (Math.random() - 0.5) * (chaosFactor * 0.05);
+        radioRef.current?.rate(Math.max(0.1, targetRate + flutter));
+
+        // Visual Frequency Detune
+        if (chaosLevel > 20) {
+            setFrequency(prev => 88.5 + (Math.random() - 0.5) * chaosFactor * 10);
         } else {
             setFrequency(88.5);
         }

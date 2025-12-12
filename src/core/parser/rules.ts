@@ -42,10 +42,17 @@ export const parserRules: ParserRule[] = [
     },
     {
         id: 'add_chaos',
-        regex: /add\s+chaos\s+(\d+)/i,
+        regex: /(?:add\s+|increase\s+)?chaos\s+(?:\+)?(\d+)/i,
         intent: 'ADD_CHAOS',
         extract: (match) => ({ amount: parseInt(match[1]) }),
-        examples: ['add chaos 10']
+        examples: ['add chaos 10', 'chaos 50', 'chaos +20', 'increase chaos 10']
+    },
+    {
+        id: 'remove_chaos',
+        regex: /(?:remove|reduce|lower|decrease|minus)\s+chaos\s+(?:-)?(\d+)|chaos\s+-(\d+)/i,
+        intent: 'ADD_CHAOS',
+        extract: (match) => ({ amount: -parseInt(match[1] || match[2]) }),
+        examples: ['remove chaos 20', 'reduce chaos 50', 'chaos -20']
     },
     {
         id: 'set_personality',
