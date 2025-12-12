@@ -1,0 +1,56 @@
+[
+    {
+        "time": 1000,
+        "action": "boot_anim",
+        "description": "Trigger Boot Animation"
+    },
+    {
+        "time": 3000,
+        "action": "create_note",
+        "payload": {
+            "content": "I have a cat named Milo."
+        },
+        "description": "User types note"
+    },
+    {
+        "time": 4000,
+        "action": "fact_extraction",
+        "description": "System extracts fact"
+    },
+    {
+        "time": 6000,
+        "action": "terminal_cmd",
+        "payload": {
+            "cmd": "who is Milo?"
+        },
+        "description": "Query Fact in Terminal"
+    },
+    {
+        "time": 9000,
+        "action": "open_windows",
+        "description": "Open multiple chaos windows"
+    },
+    {
+        "time": 12000,
+        "action": "add_chaos",
+        "payload": {
+            "amount": 50
+        },
+        "description": "Inject massive chaos"
+    },
+    {
+        "time": 15000,
+        "action": "fate_event",
+        "description": "Trigger Fate Event"
+    },
+    {
+        "time": 25000,
+        "action": "calm_down",
+        "description": "Reduce chaos"
+    },
+    {
+        "time": 28000,
+        "action": "snapshot",
+        "description": "Export System Snapshot"
+    }
+]
