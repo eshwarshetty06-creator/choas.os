@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Terminal, StickyNote, Info, Camera, Skull, Radio, Folder, User } from 'lucide-react';
+import { Terminal, StickyNote, Info, Camera, Skull, Radio, Folder, User, Gamepad2 } from 'lucide-react';
 import { Window } from '../../components/Window';
 import { useChaosStore } from '../../state/chaosStore';
 import { TerminalApp } from '../Terminal/TerminalApp';
@@ -9,12 +9,13 @@ import { TaskManager } from '../TaskManager/TaskManager';
 import { SignalTuner } from '../SignalTuner/SignalTuner';
 import { TheVoid } from '../TheVoid/TheVoid';
 import { PersonaMirror } from '../PersonaMirror/PersonaMirror';
+import { ImpossibleApp } from '../ImpossibleButton/ImpossibleApp';
 import { DesktopIcon } from './DesktopIcon';
 import { AnimatedBackground } from '../../components/AnimatedBackground';
 import { DesktopClock } from '../../components/DesktopClock';
 import { eventBus } from '../../core/eventBus';
 
-type AppId = 'welcome' | 'terminal' | 'notes' | 'glitch' | 'tasks' | 'radio' | 'void' | 'persona';
+type AppId = 'welcome' | 'terminal' | 'notes' | 'glitch' | 'tasks' | 'radio' | 'void' | 'persona' | 'game';
 
 export const Desktop: React.FC = () => {
     const { chaosLevel, addChaos } = useChaosStore();
@@ -73,6 +74,7 @@ export const Desktop: React.FC = () => {
             if (normalized === 'radio') openApp('radio');
             if (normalized === 'void') openApp('void');
             if (normalized === 'persona') openApp('persona');
+            if (normalized === 'game' || normalized === 'impossible') openApp('game');
             if (normalized === 'welcome' || normalized === 'about') openApp('welcome');
         };
 
@@ -85,6 +87,7 @@ export const Desktop: React.FC = () => {
             if (normalized === 'radio') closeApp('radio');
             if (normalized === 'void') closeApp('void');
             if (normalized === 'persona') closeApp('persona');
+            if (normalized === 'game' || normalized === 'impossible') closeApp('game');
             if (normalized === 'welcome' || normalized === 'about') closeApp('welcome');
         };
 
@@ -96,6 +99,27 @@ export const Desktop: React.FC = () => {
             eventBus.off('command:close_app', handleClose);
         };
     }, []);
+
+    // Track fullscreen windows to hide dock
+    const [fullscreenWindows, setFullscreenWindows] = React.useState<Set<string>>(new Set());
+
+    React.useEffect(() => {
+        const handleFullscreen = ({ id, isMaximized }: { id: string, isMaximized: boolean }) => {
+            setFullscreenWindows(prev => {
+                const next = new Set(prev);
+                if (isMaximized) next.add(id);
+                else next.delete(id);
+                return next;
+            });
+        };
+
+        eventBus.on('window:fullscreen', handleFullscreen);
+        return () => {
+            eventBus.off('window:fullscreen', handleFullscreen);
+        };
+    }, []);
+
+    const isDockHidden = fullscreenWindows.has('game-window');
 
     return (
         <div ref={desktopRef} className="desktop w-full h-full bg-slate-50 overflow-hidden relative selection:bg-indigo-500/30 font-sans text-slate-800">
@@ -117,7 +141,9 @@ export const Desktop: React.FC = () => {
             </div>
 
             {/* Bottom Dock */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-4 px-6 py-3 bg-white/40 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:scale-105 transition-transform duration-300">
+            <div
+                className={`absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-4 px-6 py-3 bg-white/40 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:scale-105 transition-all duration-500 ${isDockHidden ? 'translate-y-[200%] opacity-0' : ''}`}
+            >
                 <DesktopIcon
                     id="icon-welcome"
                     label="Info"
@@ -173,6 +199,13 @@ export const Desktop: React.FC = () => {
                     label="Mirror"
                     icon={User}
                     onClick={() => toggleApp('persona')}
+                    isDock
+                />
+                <DesktopIcon
+                    id="icon-game"
+                    label="Game"
+                    icon={Gamepad2}
+                    onClick={() => toggleApp('game')}
                     isDock
                 />
             </div>
@@ -375,6 +408,21 @@ export const Desktop: React.FC = () => {
                             onClose={() => closeApp('persona')}
                         >
                             <PersonaMirror />
+                        </Window>
+                    </div>
+                )}
+
+                {openApps.includes('game') && (
+                    <div className="pointer-events-auto contents">
+                        <Window
+                            id="game-window"
+                            title="Impossible Button"
+                            initialPos={{ x: 300, y: 150 }}
+                            initialSize={{ width: 800, height: 600 }}
+                            onClose={() => closeApp('game')}
+                            dragConstraints={desktopRef}
+                        >
+                            <ImpossibleApp />
                         </Window>
                     </div>
                 )}

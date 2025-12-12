@@ -16,6 +16,7 @@ export type ChaosEvents = {
     'command:set_wallpaper': (payload: { mode: string }) => void;
     'window:fate_transform': (payload: any) => void;
     'ai:response': (payload: { originalInput: string; response: string }) => void;
+    'window:fullscreen': (payload: { id: string; isMaximized: boolean }) => void;
 };
 
 class TypedEventBus extends EventEmitter<ChaosEvents> { }
