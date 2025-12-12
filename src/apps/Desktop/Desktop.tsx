@@ -10,6 +10,8 @@ import { SignalTuner } from '../SignalTuner/SignalTuner';
 import { TheVoid } from '../TheVoid/TheVoid';
 import { PersonaMirror } from '../PersonaMirror/PersonaMirror';
 import { DesktopIcon } from './DesktopIcon';
+import { AnimatedBackground } from '../../components/AnimatedBackground';
+import { DesktopClock } from '../../components/DesktopClock';
 import { eventBus } from '../../core/eventBus';
 
 type AppId = 'welcome' | 'terminal' | 'notes' | 'glitch' | 'tasks' | 'radio' | 'void' | 'persona';
@@ -41,7 +43,7 @@ export const Desktop: React.FC = () => {
     );
 
     // State for open apps (Set<AppId> would be cleaner but Array is easier for React state here)
-    const [openApps, setOpenApps] = React.useState<AppId[]>(['welcome']);
+    const [openApps, setOpenApps] = React.useState<AppId[]>([]);
 
     const toggleApp = (id: AppId) => {
         setOpenApps(prev =>
@@ -100,9 +102,13 @@ export const Desktop: React.FC = () => {
 
             {/* Background / Wallpaper Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(100,100,255,0.05),transparent_70%)]"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.8),rgba(200,230,255,0.4),rgba(255,200,240,0.4))] contrast-125 saturate-150 mix-blend-multiply"></div>
+                <AnimatedBackground />
                 <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+            </div>
+
+            {/* Clock Layer (Behind windows, above generic background) */}
+            <div className="absolute inset-0 z-5 pointer-events-none flex items-center justify-center -translate-y-16">
+                <DesktopClock />
             </div>
 
             {/* Desktop Grid Layout */}
